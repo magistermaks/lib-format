@@ -123,7 +123,7 @@ bool make(const std::string& path) {
 
 	auto dict1 = root.as<BinaryTreeDict>();
 	dict1.put(1).as<BinaryTreeDouble>(213.7);
-	dict1.put(2).as<BinaryTreeFloat>(423.6);
+	dict1.put(2).as<BinaryTreeFloat>(42);
 
 	auto dict2 = dict1.put(4).as<BinaryTreeDict>();
 	dict2.put(0).as<BinaryTreeText>("Hello World!");
@@ -139,13 +139,13 @@ bool make(const std::string& path) {
 	dict3.put(0).as<BinaryTreeLong>(0xAAAAAAAAAAAAAAA);
 	dict3.put(1).as<BinaryTreeInt>(0xBBBBBBB);
 	dict3.put(2).as<BinaryTreeShort>(0xCCC);
-	dict3.put(3).as<BinaryTreeByte>(0xD);
+	dict3.put(3).as<BinaryTreeByte>(0xFF);
 
 	auto dict4 = dict1.put(8).as<BinaryTreeDict>();
 	dict4.put(0).as<BinaryTreeLong>(0xAAAAAAAAAAAAAAA);
 	dict4.put(1).as<BinaryTreeInt>(0xBBBBBBB);
 	dict4.put(2).as<BinaryTreeShort>(0xCCC);
-	dict4.put(3).as<BinaryTreeByte>(0xD);
+	dict4.put(3).as<BinaryTreeByte>(0xFF);
 
 	dict1.put(0x5).as<BinaryTreeText>("Bit by bit into the abyss!");
 
@@ -255,9 +255,11 @@ int help() {
 
 int version() {
 	std::cout << "BT v" << BT_VERSION << " (" << endianness() << ")\n";
+	return 0;
 }
 
 int main(int argc, char** argv) {
+
 
 	// +1 to skip program name
 	std::vector<std::string> args(argv + 1, argv + argc);

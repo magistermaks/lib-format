@@ -72,8 +72,10 @@ int tree(const std::string& path) {
 
 	} catch (ParseError error) {
 		error.print(path);
+		return 1;
 	}
 
+	return 0;
 }
 
 int usage(bool hint) {

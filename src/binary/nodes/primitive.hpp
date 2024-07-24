@@ -11,8 +11,21 @@ class BinaryTreePrimitive {
 
 			public:
 
-				Writer(SectionManager* manager, SectionBuffer* buffer, T value) {
-					buffer->write<T>(value);
+				template <typename A> requires std::integral<A> || (std::floating_point<A> && std::floating_point<T>)
+				Writer(SectionManager* manager, SectionBuffer* buffer, A value) {
+
+					if constexpr (std::is_floating_point<A>::value || std::is_floating_point<T>::value) {
+						buffer->write<T>((T) value);
+						return;
+					}
+
+					if constexpr (sizeof(A) == sizeof(T)) {
+						buffer->write<T>(std::bit_cast<T>(value));
+						return;
+					}
+
+					buffer->write<T>(static_cast<T>(value));
+
 				}
 
 		};
@@ -38,7 +51,7 @@ class BinaryTreePrimitive {
 
 DefineTypeAdapter(BinaryTreeDouble, double, BinaryNode::DOUBLE);
 DefineTypeAdapter(BinaryTreeFloat, float, BinaryNode::FLOAT);
-DefineTypeAdapter(BinaryTreeLong, uint64_t, BinaryNode::LONG);
-DefineTypeAdapter(BinaryTreeInt, uint32_t, BinaryNode::INT);
-DefineTypeAdapter(BinaryTreeShort, uint16_t, BinaryNode::SHORT);
-DefineTypeAdapter(BinaryTreeByte, uint8_t, BinaryNode::BYTE);
+DefineTypeAdapter(BinaryTreeLong, int64_t, BinaryNode::LONG);
+DefineTypeAdapter(BinaryTreeInt, int32_t, BinaryNode::INT);
+DefineTypeAdapter(BinaryTreeShort, int16_t, BinaryNode::SHORT);
+DefineTypeAdapter(BinaryTreeByte, int8_t, BinaryNode::BYTE);

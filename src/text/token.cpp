@@ -19,7 +19,7 @@ std::string Token::identify(char chr) {
 	if (chr == '\t') return "tab (\'\\t\')";
 	if (chr == '\r') return "carriage return (\'\\n\')";
 
-	if (chr >= 127) return "ascii+" + std::to_string((int) chr);
+	return "ascii+" + std::to_string((int) chr);
 }
 
 bool Token::isWhite(char chr) {
@@ -58,7 +58,7 @@ const char* Token::name() const {
 }
 
 std::string_view Token::view() const {
-	return {start, end - start};
+	return {start, (size_t) std::distance(start, end)};
 }
 
 bool Token::isSymbolEqual(char symbol) const {
