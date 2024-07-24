@@ -1,7 +1,5 @@
 
-#include <binary/nodes.hpp>
-#include <binary/header.hpp>
-#include <common/file.hpp>
+#include <binary/helper.hpp>
 #include <common/util.hpp>
 
 #include <iostream>
@@ -150,9 +148,14 @@ bool make(const std::string& path) {
 	dict1.put(0x5).as<BinaryTreeText>("Bit by bit into the abyss!");
 
 	std::vector<uint8_t> output;
-	context.emit(output);
+	WriteResult result = context.emit(output);
 
 	save(path.c_str(), output);
+
+	std::cout << "Write Result:\n";
+	std::cout << " * Cache-hits   : " << result.cache_hits   << " (saved " << result.total_skipped << " bytes)\n";
+	std::cout << " * Cache-misses : " << result.cache_misses << "\n";
+	std::cout << " * Cache-failes : " << result.cache_fails  << "\n\n";
 
 	std::cout << "File generated, it contain at least one instance of each node type.\n";
 	std::cout << "You can display it using 'bt show " << path << "'\n";
@@ -187,19 +190,8 @@ bool info(const std::string& path) {
 
 bool tree(const std::string& path) {
 
-	InputFile file {path.c_str()};
-
-	Reader reader {file.data()};
-	BinaryTreeHeader header {reader};
-
-	if (!header.readable()) {
-		std::cout << "Encoding differs, this file can't be read! Aborting...\n";
-		return 1;
-	}
-
-	BinaryTreeNode node {reader};
-
-	visit(node, 30);
+	BinaryTree::Input file {path};
+	visit(file.root(), 30);
 	return 0;
 }
 

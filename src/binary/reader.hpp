@@ -11,6 +11,8 @@ class Reader {
 
 	public:
 
+		Reader() = default;
+
 		Reader(const void* base);
 
 		/// Move to the specified offset within the data array

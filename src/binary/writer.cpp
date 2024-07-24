@@ -72,13 +72,15 @@ void SectionBuffer::link(std::vector<uint8_t>& output) {
 SectionCache::SectionInfo::SectionInfo(SectionBuffer* buffer)
 : length(buffer->size()), offset(buffer->offset), hashed(buffer->hash()) {}
 
-SectionCache::SectionCache() {
+SectionCache::SectionCache(bool enabled) {
 
 	// make sure initialy all lookups will miss initialy
 	// by making the full hash differ from the bucked offset
 	for (int i = 0; i <= 0xFF; i ++) {
 		bucket[i].hashed = ~i;
 	}
+
+	this->enabled = enabled;
 }
 
 void SectionCache::emit(SectionBuffer* buffer, std::vector<uint8_t>& output) {
@@ -86,7 +88,7 @@ void SectionCache::emit(SectionBuffer* buffer, std::vector<uint8_t>& output) {
 
 	// don't cache sections with links
 	// links can differ or otherwise identical data
-	if (buffer->links.empty()) {
+	if (enabled && buffer->links.empty()) {
 		SectionInfo& info = bucket[hash & 0xFF];
 
 		// verify if the full hash and length match
@@ -95,17 +97,24 @@ void SectionCache::emit(SectionBuffer* buffer, std::vector<uint8_t>& output) {
 			// actually comapre the data in the sections
 			if (buffer->equal(output, info.offset)) {
 				buffer->offset = info.offset;
-				printf("Cache hit @%d, skipped %d bytes\n", info.offset, info.length);
+
+				stats.cache_hits ++;
+				stats.total_skipped += info.length;
 				return;
 			} else {
-				printf("Cache near-miss @%d\n", info.offset);
+				stats.cache_fails ++;
 			}
 		}
 	}
 
 	// cache miss, write the buffer and add to cache
+	stats.cache_misses ++;
 	buffer->emit(output);
 	bucket[hash & 0xFF] = {buffer};
+}
+
+WriteResult SectionCache::result() const {
+	return this->stats;
 }
 
 /*
@@ -124,7 +133,7 @@ SectionBuffer* SectionManager::allocate() {
 	return buffer;
 }
 
-void SectionManager::emit(std::vector<uint8_t>& output, const WriteConfig& config) {
+WriteResult SectionManager::emit(std::vector<uint8_t>& output, const WriteConfig& config) {
 
 	size_t total = 0;
 
@@ -141,7 +150,7 @@ void SectionManager::emit(std::vector<uint8_t>& output, const WriteConfig& confi
 	}
 
 	output.reserve(total);
-	SectionCache cache;
+	SectionCache cache {config.section_deduplication};
 
 	for (SectionBuffer* buffer : buffers) {
 		cache.emit(buffer, output);
@@ -151,4 +160,5 @@ void SectionManager::emit(std::vector<uint8_t>& output, const WriteConfig& confi
 		buffer->link(output);
 	}
 
+	return cache.result();
 }

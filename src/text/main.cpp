@@ -1,9 +1,7 @@
 
 #include <common/external.hpp>
-#include <common/file.hpp>
 #include <common/util.hpp>
-
-#include "nodes.hpp"
+#include "helper.hpp"
 
 void visit(const TextTreeNode* node, int depth, std::vector<bool> flags = {}) {
 
@@ -60,15 +58,10 @@ void visit(const TextTreeNode* node, int depth, std::vector<bool> flags = {}) {
 
 int tree(const std::string& path) {
 
-	InputFile file {path.c_str()};
-
 	try {
-		std::vector<Token> tokens = Token::tokenize((const char*) file.data(), file.size());
-		TokenSpan span {tokens};
 
-		auto root = TextTreeDict::parse(span.unpack());
-		visit(root, 30);
-		delete root;
+		TextTree::Input file {path.c_str()};
+		visit(file.root(), 30);
 
 	} catch (ParseError error) {
 		error.print(path);

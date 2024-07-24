@@ -2,6 +2,22 @@
 #pragma once
 #include <common/external.hpp>
 
+struct WriteResult {
+
+	// the number of bytes skipped due to caching
+	int total_skipped = 0;
+
+	// the number of expensive near-misses in the cache
+	int cache_fails = 0;
+
+	// the number of sections skipped due to the caching
+	int cache_hits = 0;
+
+	// the number of sections not found in cache and written
+	int cache_misses = 0;
+
+};
+
 struct WriteConfig {
 
 	// controls whether to emit the BT header
@@ -103,14 +119,21 @@ class SectionCache {
 
 		// each bucket containes only one cached value
 		SectionInfo bucket[0xFF + 1];
+		bool enabled;
+
+		WriteResult stats;
 
 	public:
 
-		SectionCache();
+		SectionCache(bool enabled);
 
 		/// wrapped for the `buffer.emit()` call that tries to limit the number of those calls
 		/// by mapping identical sections to the same memory range
 		void emit(SectionBuffer* buffer, std::vector<uint8_t>& output);
+
+		/// returns some general statistics about the
+		/// written data, see the `WriteResult` struct
+		WriteResult result() const;
 
 };
 
@@ -129,6 +152,6 @@ class SectionManager {
 		SectionBuffer* allocate();
 
 		/// Emits all the stored data into the output vector in accordance with the WriteConfig
-		void emit(std::vector<uint8_t>& output, const WriteConfig& config = {});
+		WriteResult emit(std::vector<uint8_t>& output, const WriteConfig& config = {});
 
 };

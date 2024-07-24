@@ -41,3 +41,7 @@ add_executable(tt
 )
 target_link_libraries(tt PRIVATE lib-format-tt)
 target_include_directories(tt PRIVATE ${LIB_FORMAT_SRC})
+
+# You can then install with 'sudo make install'
+install(TARGETS bt)
+install(TARGETS tt)
