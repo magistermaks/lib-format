@@ -2,6 +2,7 @@
 #include <binary/nodes.hpp>
 #include <binary/header.hpp>
 #include <common/file.hpp>
+#include <common/util.hpp>
 
 #include <iostream>
 
@@ -15,20 +16,6 @@ void save(const char* path, std::vector<uint8_t>& output) {
 
 	fwrite(output.data(), 1, output.size(), file);
 	fclose(file);
-
-}
-
-void padding(std::vector<bool>& flags) {
-
-	if (flags.empty()) {
-		return;
-	}
-
-	for (int i = 0; i < flags.size() - 1; i ++) {
-		std::cout << (flags[i] ? "│  " : "   ");
-	}
-
-	std::cout << (flags.back() ? "├─ " : "└─ ");
 
 }
 
@@ -72,7 +59,7 @@ void visit(BinaryTreeNode node, int depth, std::vector<bool> flags = {}) {
 
 		int counter = dict.size();
 
-		if (flags.size() > depth) {
+		if (flags.size() >= depth) {
 			std::vector<bool> child {flags};
 			child.push_back(false);
 
@@ -86,7 +73,7 @@ void visit(BinaryTreeNode node, int depth, std::vector<bool> flags = {}) {
 			child.push_back(-- counter);
 
 			padding(child);
-			std::cout << "" << key << " ";
+			std::cout << key << " ";
 			visit(node, depth, child);
 		}
 
@@ -104,7 +91,7 @@ void visit(BinaryTreeNode node, int depth, std::vector<bool> flags = {}) {
 
 		int counter = array.size();
 
-		if (flags.size() > depth) {
+		if (flags.size() >= depth) {
 			std::vector<bool> child {flags};
 			child.push_back(false);
 
@@ -120,7 +107,7 @@ void visit(BinaryTreeNode node, int depth, std::vector<bool> flags = {}) {
 			child.push_back(-- counter);
 
 			padding(child);
-			std::cout << "" << (i ++) << " ";
+			std::cout << (i ++) << " ";
 			visit(node, depth, child);
 		}
 
@@ -212,7 +199,7 @@ bool tree(const std::string& path) {
 
 	BinaryTreeNode node {reader};
 
-	visit(node, 3);
+	visit(node, 30);
 	return 0;
 }
 

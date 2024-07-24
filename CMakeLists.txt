@@ -12,6 +12,10 @@ add_library(lib-format-bt
 
 add_library(lib-format-tt
 	src/common/file.cpp
+	src/text/token.cpp
+	src/text/span.cpp
+	src/text/error.cpp
+	src/text/parser.cpp
 )
 
 set(LIB_FORMAT_SRC ${CMAKE_CURRENT_LIST_DIR}/src)
@@ -23,11 +27,17 @@ set_target_properties(lib-format-tt PROPERTIES PREFIX "")
 target_include_directories(lib-format-tt PRIVATE ${LIB_FORMAT_SRC})
 
 # The BT utility
-add_executable(bt src/binary/main.cpp)
+add_executable(bt
+	src/binary/main.cpp
+	src/common/util.cpp
+)
 target_link_libraries(bt PRIVATE lib-format-bt)
 target_include_directories(bt PRIVATE ${LIB_FORMAT_SRC})
 
 # The TT utility
-add_executable(tt src/text/main.cpp)
+add_executable(tt
+	src/text/main.cpp
+	src/common/util.cpp
+)
 target_link_libraries(tt PRIVATE lib-format-tt)
 target_include_directories(tt PRIVATE ${LIB_FORMAT_SRC})
