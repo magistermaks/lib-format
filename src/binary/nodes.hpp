@@ -1,6 +1,6 @@
 
 #pragma once
-#include "external.hpp"
+#include <common/external.hpp>
 
 // don't use
 #include "writer.hpp"
@@ -16,14 +16,16 @@
 constexpr const char* BinaryTreeNode::nameOf(uint8_t node) {
 
 	// primitives
-	if (node == BinaryTreeFloat::header) return "BinaryTreeFloat";
-	if (node == BinaryTreeInt::header) return "BinaryTreeInt";
-	if (node == BinaryTreeShort::header) return "BinaryTreeShort";
+	if (node == BinaryNode::FLOAT) return "Float";
+	if (node == BinaryNode::LONG) return "Long";
+	if (node == BinaryNode::INT) return "Int";
+	if (node == BinaryNode::SHORT) return "Short";
+	if (node == BinaryNode::BYTE) return "Byte";
 
 	// compounds
-	if (node == BinaryTreeText::header) return "BinaryTreeText";
-	if (node == BinaryTreeDict::header) return "BinaryTreeDict";
-	if (node == BinaryTreeArray</* dummy */ BinaryTreeInt>::header) return "BinaryTreeArray";
+	if (node == BinaryNode::TEXT) return "Text";
+	if (node == BinaryNode::DICT) return "Dictionary";
+	if (node == BinaryNode::LIST) return "Array";
 
 	return "<UndefinedNode>";
 }

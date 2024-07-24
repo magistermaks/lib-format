@@ -1,6 +1,6 @@
 
 #pragma once
-#include "external.hpp"
+#include <common/external.hpp>
 
 enum BinaryNode : uint8_t {
 
@@ -8,7 +8,7 @@ enum BinaryNode : uint8_t {
 	DICT   = 0xF4,
 	LIST   = 0xE4,
 	TEXT   = 0xD4,
-	BLOB   = 0xC4,
+	BLOB   = 0xC4, // TODO
 
 	// numerical
 	FLOAT  = 0x14, // float
@@ -33,3 +33,5 @@ enum BinaryNode : uint8_t {
 */
 
 };
+
+#define HEADER(node) static constexpr uint8_t header = node;
