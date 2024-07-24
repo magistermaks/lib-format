@@ -10,11 +10,24 @@ add_library(lib-format-bt
 	src/binary/reader.cpp
 )
 
+add_library(lib-format-tt
+	src/common/file.cpp
+)
+
 set(LIB_FORMAT_SRC ${CMAKE_CURRENT_LIST_DIR}/src)
 
+# Configure
 set_target_properties(lib-format-bt PROPERTIES PREFIX "")
 target_include_directories(lib-format-bt PRIVATE ${LIB_FORMAT_SRC})
+set_target_properties(lib-format-tt PROPERTIES PREFIX "")
+target_include_directories(lib-format-tt PRIVATE ${LIB_FORMAT_SRC})
 
+# The BT utility
 add_executable(bt src/binary/main.cpp)
 target_link_libraries(bt PRIVATE lib-format-bt)
 target_include_directories(bt PRIVATE ${LIB_FORMAT_SRC})
+
+# The TT utility
+add_executable(tt src/text/main.cpp)
+target_link_libraries(tt PRIVATE lib-format-tt)
+target_include_directories(tt PRIVATE ${LIB_FORMAT_SRC})
