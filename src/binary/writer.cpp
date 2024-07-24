@@ -1,5 +1,6 @@
 
 #include "writer.hpp"
+#include "header.hpp"
 
 /*
  * SectionBuffer
@@ -125,8 +126,14 @@ SectionBuffer* SectionManager::allocate() {
 
 void SectionManager::emit(std::vector<uint8_t>& output, const WriteConfig& config) {
 
-	int hash_bytes = 18;
 	size_t total = 0;
+
+	if (config.include_header) {
+		BinaryTreeHeader header {0x00, 0x0C};
+		header.emit(output);
+
+		total += BinaryTreeHeader::size;
+	}
 
 	for (SectionBuffer* buffer : buffers) {
 		total += buffer->size();

@@ -1,10 +1,8 @@
 
 #include <binary/nodes.hpp>
+#include <binary/header.hpp>
 #include <common/file.hpp>
 
-#define BT_VERSION 1
-
-#include <bit>
 #include <iostream>
 
 void save(const char* path, std::vector<uint8_t>& output) {
@@ -19,7 +17,6 @@ void save(const char* path, std::vector<uint8_t>& output) {
 	fclose(file);
 
 }
-
 
 void padding(std::vector<bool>& flags) {
 
@@ -39,8 +36,28 @@ void visit(BinaryTreeNode node, int depth, std::vector<bool> flags = {}) {
 
 	std::cout << node.name();
 
+	if (node.type() == BinaryNode::LONG) {
+		std::cout << " " << node.as<BinaryTreeLong>() << "\n";
+		return;
+	}
+
 	if (node.type() == BinaryNode::INT) {
 		std::cout << " " << node.as<BinaryTreeInt>() << "\n";
+		return;
+	}
+
+	if (node.type() == BinaryNode::SHORT) {
+		std::cout << " " << node.as<BinaryTreeShort>() << "\n";
+		return;
+	}
+
+	if (node.type() == BinaryNode::BYTE) {
+		std::cout << " " << (int) node.as<BinaryTreeByte>() << "\n";
+		return;
+	}
+
+	if (node.type() == BinaryNode::DOUBLE) {
+		std::cout << " " << node.as<BinaryTreeDouble>() << "\n";
 		return;
 	}
 
@@ -118,8 +135,8 @@ bool make(const std::string& path) {
 	BinaryTreeNode::Writer root {&context, context.allocate()};
 
 	auto dict1 = root.as<BinaryTreeDict>();
-	dict1.put(1).as<BinaryTreeInt>(69);
-	dict1.put(2).as<BinaryTreeInt>(420);
+	dict1.put(1).as<BinaryTreeDouble>(213.7);
+	dict1.put(2).as<BinaryTreeFloat>(423.6);
 
 	auto dict2 = dict1.put(4).as<BinaryTreeDict>();
 	dict2.put(0).as<BinaryTreeText>("Hello World!");
@@ -132,14 +149,16 @@ bool make(const std::string& path) {
 	list1.put("Or there's no way that you can handle this");
 
 	auto dict3 = dict1.put(3).as<BinaryTreeDict>();
-	dict3.put(0).as<BinaryTreeInt>(0xAAAAAA);
-	dict3.put(1).as<BinaryTreeInt>(0xBBBBBB);
-	dict3.put(2).as<BinaryTreeInt>(0xCCCCCC);
+	dict3.put(0).as<BinaryTreeLong>(0xAAAAAAAAAAAAAAA);
+	dict3.put(1).as<BinaryTreeInt>(0xBBBBBBB);
+	dict3.put(2).as<BinaryTreeShort>(0xCCC);
+	dict3.put(3).as<BinaryTreeByte>(0xD);
 
 	auto dict4 = dict1.put(8).as<BinaryTreeDict>();
-	dict4.put(0).as<BinaryTreeInt>(0xAAAAAA);
-	dict4.put(1).as<BinaryTreeInt>(0xBBBBBB);
-	dict4.put(2).as<BinaryTreeInt>(0xCCCCCC);
+	dict4.put(0).as<BinaryTreeLong>(0xAAAAAAAAAAAAAAA);
+	dict4.put(1).as<BinaryTreeInt>(0xBBBBBBB);
+	dict4.put(2).as<BinaryTreeShort>(0xCCC);
+	dict4.put(3).as<BinaryTreeByte>(0xD);
 
 	dict1.put(0x5).as<BinaryTreeText>("Bit by bit into the abyss!");
 
@@ -162,15 +181,20 @@ bool info(const std::string& path) {
 		return 1;
 	}
 
-	const uint8_t*  d08 = (const uint8_t*)  file.data();
-	const uint16_t* d16 = (const uint16_t*) file.data();
-	const uint32_t* d32 = (const uint32_t*) file.data();
+	Reader reader {file.data()};
+	BinaryTreeHeader header {reader};
 
 	std::cout << "Size             : " << file.size() << " bytes (" << (file.size() - 12) << " bytes of data)\n";
-	std::cout << "Version    +0x04 : BT v" << (int) d08[4] << "\n";
-	std::cout << "Endianness +0x05 : " << (d08[5] ? "little-endian" : "big-endian") << "\n";
-	std::cout << "Flags      +0x06 : " << d16[3] << "\n";
-	std::cout << "Root       +0x08 : 0x" << std::hex << d32[2] << std::dec << "\n";
+	std::cout << "Version    +0x04 : BT v" << (int) header.version << "\n";
+	std::cout << "Endianness +0x05 : " << (header.endian ? "little-endian" : "big-endian") << "\n";
+	std::cout << "Flags      +0x06 : " << header.flags << "\n";
+	std::cout << "Root       +0x08 : 0x" << std::hex << header.offset << std::dec << "\n";
+
+	if (!header.readable()) {
+		std::cout << "Encoding differs, this file can't be read! Aborting...\n";
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -179,6 +203,13 @@ bool tree(const std::string& path) {
 	InputFile file {path.c_str()};
 
 	Reader reader {file.data()};
+	BinaryTreeHeader header {reader};
+
+	if (!header.readable()) {
+		std::cout << "Encoding differs, this file can't be read! Aborting...\n";
+		return 1;
+	}
+
 	BinaryTreeNode node {reader};
 
 	visit(node, 3);
@@ -272,26 +303,3 @@ int main(int argc, char** argv) {
 	return 1;
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
