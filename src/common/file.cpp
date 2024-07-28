@@ -19,14 +19,14 @@ InputFile::InputFile(const std::string& path)
 		throw std::runtime_error {"CreateFileA: Failed to open file"};
 	}
 
-	LARGE_INTEGER file_size;
-	if (!GetFileSizeEx(file_handle, &file_size)) {
+	LARGE_INTEGER size;
+	if (!GetFileSizeEx(file_handle, &size)) {
 		CloseHandle(file_handle);
 		throw std::runtime_error {"GetFileSizeEx: Failed to get file size"};
 	}
 
 	// ah, how i hate windows
-	this->file_size = static_cast<size_t>(file_size.QuadPart);
+	this->file_size = static_cast<size_t>(size.QuadPart);
 	HANDLE map_handle = CreateFileMapping(file_handle, NULL, PAGE_READONLY, 0, 0, NULL);
 
 	if (!map_handle) {
